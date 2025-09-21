@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ChansonRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
@@ -37,6 +39,21 @@ class Chanson
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $autre = null;
+
+    #[ORM\ManyToOne(inversedBy: 'chansons')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Artiste $chanteur = null;
+
+    /**
+     * @var Collection<int, Playlist>
+     */
+    #[ORM\ManyToMany(targetEntity: Playlist::class, inversedBy: 'chansons')]
+    private Collection $playlists;
+
+    public function __construct()
+    {
+        $this->playlists = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -135,6 +152,42 @@ class Chanson
     public function setAutre(?string $autre): static
     {
         $this->autre = $autre;
+
+        return $this;
+    }
+
+    public function getChanteur(): ?Artiste
+    {
+        return $this->chanteur;
+    }
+
+    public function setChanteur(?Artiste $chanteur): static
+    {
+        $this->chanteur = $chanteur;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Playlist>
+     */
+    public function getPlaylists(): Collection
+    {
+        return $this->playlists;
+    }
+
+    public function addPlaylist(Playlist $playlist): static
+    {
+        if (!$this->playlists->contains($playlist)) {
+            $this->playlists->add($playlist);
+        }
+
+        return $this;
+    }
+
+    public function removePlaylist(Playlist $playlist): static
+    {
+        $this->playlists->removeElement($playlist);
 
         return $this;
     }
