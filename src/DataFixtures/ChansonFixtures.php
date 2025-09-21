@@ -7,12 +7,13 @@ use Doctrine\Persistence\ObjectManager;
 use Faker;
 use App\Entity\Chanson;
 use App\Entity\Artiste;
+use App\Entity\Playlist;
 use App\DataFixtures\ArtisteFixtures;
+use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 
-
-class ChansonFixtures extends Fixture 
+class ChansonFixtures extends Fixture implements DependentFixtureInterface
 {
-    public function load(ObjectManager $manager): void 
+    public function load(ObjectManager $manager): void
     {
         for ($i = 1; $i <= 10; $i++) {
             $faker = Faker\Factory::create('fr_FR');
@@ -27,8 +28,10 @@ class ChansonFixtures extends Fixture
             $chanson->setAutre($faker->sentence(1));
 
 
-
             $chanson->setChanteur($this->getReference('chanteur' . $faker->numberBetween(1, 10), Artiste::class));
+
+            $chanson->addPlaylist($this->getReference('playlist' . $faker->numberBetween(1, 3), Playlist::class));
+            $chanson->addPlaylist($this->getReference('playlist' . $faker->numberBetween(1, 3), Playlist::class));
 
 
             $manager->persist($chanson);
@@ -41,6 +44,7 @@ class ChansonFixtures extends Fixture
     {
         return ([
             ArtisteFixtures::class,
+            PlaylistFixtures::class,
         ]);
     }
 }
